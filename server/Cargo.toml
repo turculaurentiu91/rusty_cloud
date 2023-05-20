@@ -1,0 +1,18 @@
+[package]
+name = "server"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+axum = "0.6.18"
+chrono = "0.4.24"
+hmac = "0.12.1"
+interfaces ={ path = "../interfaces" }
+jwt = "0.16.0"
+serde = { version = "1.0.163", features = ["derive"] }
+sha2 = "0.10.6"
+sqlx = { version = "0.6.3", features = ["runtime-tokio-rustls", "postgres", "chrono", "json"] }
+tokio = { version = "1.28.1", features = ["full"] }
+validator = { version = "0.16.0", features = ["derive"] }
