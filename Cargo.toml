@@ -1,0 +1,7 @@
+[workspace]
+
+members = [
+    "http",
+    "interfaces",
+    "http_client"
+]
