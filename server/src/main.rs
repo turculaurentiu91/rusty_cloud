@@ -1,6 +1,7 @@
 use sqlx::postgres::PgPoolOptions;
 use std::env;
 
+mod helpers;
 mod http;
 
 #[tokio::main]
