@@ -9,6 +9,8 @@ use serde::{Deserialize, Serialize};
 use sha2::Sha256;
 use std::env;
 
+use crate::http::error::Error;
+
 #[derive(Serialize, Deserialize)]
 pub struct User {
     pub id: i32,
@@ -57,17 +59,19 @@ impl<S> FromRequestParts<S> for User
 where
     S: Send + Sync,
 {
-    type Rejection = StatusCode;
+    type Rejection = Error<String>;
 
     async fn from_request_parts(parts: &mut Parts, _: &S) -> Result<Self, Self::Rejection> {
+        let error = Error::new(String::from("Invalid token"), StatusCode::UNAUTHORIZED);
+
         if let Some(authorization) = parts.headers.get(AUTHORIZATION) {
             if let Ok(authorization) = authorization.to_str() {
                 if let Some(token) = authorization.split_once(" ") {
-                    return User::from_token(token.1.trim()).map_err(|_| StatusCode::UNAUTHORIZED);
+                    return User::from_token(token.1.trim()).map_err(|_| error);
                 }
             }
         }
 
-        Err(StatusCode::UNAUTHORIZED)
+        Err(error)
     }
 }
