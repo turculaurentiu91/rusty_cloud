@@ -1,6 +1,8 @@
 use axum::{routing::get, Extension, Router};
 use sqlx::PgPool;
 
+pub mod error;
+
 pub fn app(db: PgPool) -> Router {
     Router::new()
         .route("/", get(me_handler))
