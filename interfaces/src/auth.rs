@@ -17,3 +17,10 @@ pub struct User {
     pub email: String,
     pub name: String,
 }
+
+#[derive(Serialize, Deserialize)]
+pub struct RegisterRequest {
+    pub email: String,
+    pub name: String,
+    pub password: String,
+}
