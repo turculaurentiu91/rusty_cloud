@@ -38,7 +38,7 @@ impl User {
         }
     }
 
-    pub fn toToken(&self) -> String {
+    pub fn to_oken(&self) -> String {
         let secret = env::var("APP_SECRET").expect("APP_SECRET must be set");
         let key: Hmac<Sha256> =
             Hmac::new_from_slice(secret.as_bytes()).expect("Could not create HMAC key");
