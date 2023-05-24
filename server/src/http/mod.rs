@@ -3,11 +3,13 @@ use sqlx::PgPool;
 
 mod auth;
 pub mod error;
+mod files;
 
 pub fn app(db: PgPool) -> Router {
     Router::new()
         .route("/", get(me_handler))
         .merge(auth::router())
+        .merge(files::router())
         .layer(Extension(db))
 }
 
