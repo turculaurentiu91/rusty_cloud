@@ -25,6 +25,7 @@ pub async fn handle(
     let files: Vec<File> = files
         .iter()
         .map(|db_file| File {
+            id: db_file.id,
             file_name: db_file.file_name.to_owned(),
             mime_type: db_file.mime_type.to_owned(),
             formatted_size: db_file.formatted_size.to_owned(),
