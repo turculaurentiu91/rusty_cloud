@@ -59,25 +59,41 @@ pub async fn handle(
             existing_file.id
         } else {
             // File doesn't exist, insert new file metadata into the database
-            let new_file = sqlx::query!(
+            let mut transaction = db.begin().await.map_err(sqlx::Error::into)?;
+
+            let file = sqlx::query!(
                 r#"
-                    INSERT INTO files (owner_id, file_name, mime_type, size_in_bytes)
-                    VALUES ($1, $2, $3, $4)
-                    RETURNING id
+                    INSERT INTO files (owner_id, file_name, mime_type, size_in_bytes, storage_path)
+                    VALUES ($1, $2, $3, $4, 'temp')
+                    RETURNING *
                 "#,
                 user.id,
                 file_name,
                 mime_type,
                 data.len() as i64,
             )
-            .fetch_one(&db)
+            .fetch_one(&mut transaction)
             .await
             .map_err(sqlx::Error::into)?;
 
-            new_file.id
+            sqlx::query!(
+                r#"
+                    UPDATE files
+                    SET storage_path = '/storage/' || $1
+                    WHERE files.id = $1
+                "#,
+                file.id
+            )
+            .execute(&mut transaction)
+            .await
+            .map_err(sqlx::Error::into)?;
+
+            transaction.commit().await.map_err(sqlx::Error::into)?;
+
+            file.id
         };
 
-        let storage_path = format!("./storage/{file_id}");
+        let storage_path = format!("/storage/{file_id}");
 
         // Create the directory if it does not exist
         if let Some(parent_dir) = std::path::Path::new(&storage_path).parent() {
