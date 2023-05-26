@@ -20,4 +20,11 @@ RUN apt-get autoremove -y && apt-get clean -y
 RUN curl -fsSL -o /usr/local/bin/dbmate https://github.com/amacneil/dbmate/releases/latest/download/dbmate-linux-amd64 \
    && chmod +x /usr/local/bin/dbmate
 
+# Install Node.js v18
+RUN curl -sL https://deb.nodesource.com/setup_18.x | bash - \
+   && apt-get install -y nodejs
+
+# Install wasm-pack
+RUN curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
 RUN mkdir /storage && chown -R vscode:vscode /storage
