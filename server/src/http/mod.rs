@@ -4,12 +4,14 @@ use sqlx::PgPool;
 mod auth;
 pub mod error;
 mod files;
+mod folders;
 
 pub fn app(db: PgPool) -> Router {
     Router::new()
         .route("/", get(me_handler))
         .merge(auth::router())
         .merge(files::router())
+        .merge(folders::router())
         .layer(Extension(db))
 }
 
