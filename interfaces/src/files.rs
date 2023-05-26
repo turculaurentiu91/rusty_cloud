@@ -26,3 +26,9 @@ pub struct GetFolderResponse {
     pub folders: Vec<Folder>,
     pub files: Vec<File>,
 }
+
+#[derive(Serialize, Deserialize)]
+pub struct CreateOrUpdateFolderRequest {
+    pub name: String,
+    pub parent_id: Option<i32>,
+}
