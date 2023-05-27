@@ -3,6 +3,7 @@ use axum::{
     Extension, Router,
 };
 use sqlx::PgPool;
+use tower_cookies::CookieManagerLayer;
 use tower_http::services::ServeDir;
 
 mod auth;
@@ -24,6 +25,7 @@ pub fn app(db: PgPool) -> Router {
     Router::new()
         .fallback(static_files_service)
         .nest("/api", api)
+        .layer(CookieManagerLayer::new())
 }
 
 pub async fn me_handler() -> String {

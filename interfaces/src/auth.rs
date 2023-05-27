@@ -11,6 +11,7 @@ pub struct LoginRequest {
 #[derive(Serialize, Deserialize)]
 pub struct LoginOkResponse {
     pub token: String,
+    pub user: User,
 }
 
 #[derive(Serialize, Deserialize)]

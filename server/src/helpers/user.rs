@@ -1,15 +1,16 @@
 use axum::{
     async_trait,
     extract::FromRequestParts,
-    http::{header::AUTHORIZATION, request::Parts, StatusCode},
+    http::{request::Parts, StatusCode},
+    Json,
 };
 use hmac::{Hmac, Mac};
+use interfaces::error_response::ErrorResponse;
 use jwt::{SignWithKey, VerifyWithKey};
 use serde::{Deserialize, Serialize};
 use sha2::Sha256;
 use std::env;
-
-use crate::http::error::Error;
+use tower_cookies::Cookies;
 
 #[derive(Serialize, Deserialize)]
 pub struct User {
@@ -59,19 +60,40 @@ impl<S> FromRequestParts<S> for User
 where
     S: Send + Sync,
 {
-    type Rejection = Error<String>;
+    type Rejection = (StatusCode, Json<ErrorResponse<String>>);
 
-    async fn from_request_parts(parts: &mut Parts, _: &S) -> Result<Self, Self::Rejection> {
-        let error = Error::new(String::from("Invalid token"), StatusCode::UNAUTHORIZED);
+    async fn from_request_parts(parts: &mut Parts, state: &S) -> Result<Self, Self::Rejection> {
+        let cookies = Cookies::from_request_parts(parts, state)
+            .await
+            .map_err(|e| {
+                (
+                    e.0,
+                    Json(ErrorResponse {
+                        error: e.1.to_string(),
+                        extra: None,
+                    }),
+                )
+            })?;
 
-        if let Some(authorization) = parts.headers.get(AUTHORIZATION) {
-            if let Ok(authorization) = authorization.to_str() {
-                if let Some(token) = authorization.split_once(" ") {
-                    return User::from_token(token.1.trim()).map_err(|_| error);
-                }
-            }
+        if let Some(session) = cookies.get("session") {
+            let token = session.value().trim();
+            return User::from_token(token).map_err(|_| {
+                (
+                    StatusCode::UNAUTHORIZED,
+                    Json(ErrorResponse {
+                        error: "Invalid session".to_string(),
+                        extra: None,
+                    }),
+                )
+            });
         }
 
-        Err(error)
+        Err((
+            StatusCode::UNAUTHORIZED,
+            Json(ErrorResponse {
+                error: "Invalid session".to_string(),
+                extra: None,
+            }),
+        ))
     }
 }

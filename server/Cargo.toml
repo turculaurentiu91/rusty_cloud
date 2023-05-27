@@ -19,3 +19,4 @@ tokio-util = { version = "0.7.8", features = ["io"] }
 validator = { version = "0.16.0", features = ["derive"] }
 tower-http = { version = "0.4.0", features = ["fs", "trace"] }
 db = { path = "../db" }
+tower-cookies = "0.9.0"
