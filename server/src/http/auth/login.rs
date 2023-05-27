@@ -22,6 +22,7 @@ pub async fn handle(
                 .path("/")
                 .http_only(true)
                 .expires(OffsetDateTime::now_utc() + days)
+                .secure(cfg!(debug_assertions))
                 .finish();
 
             cookies.add(session_cookie);
