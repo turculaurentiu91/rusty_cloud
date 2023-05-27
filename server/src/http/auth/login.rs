@@ -4,7 +4,7 @@ use interfaces::{
     error_response::ErrorResponse,
 };
 use sqlx::PgPool;
-use tower_cookies::{Cookie, Cookies};
+use tower_cookies::{cookie::time::OffsetDateTime, Cookie, Cookies};
 
 use crate::helpers::user::User;
 
@@ -16,9 +16,12 @@ pub async fn handle(
     match db::auth::User::login(&body.email, &body.password, &db).await {
         Ok(user) => {
             let token = User::new(user.id, &user.name, &user.email).to_token();
+            let days: u64 = chrono::Duration::days(2).num_milliseconds() as u64;
+            let days = std::time::Duration::from_millis(days);
             let session_cookie = Cookie::build("session", token)
                 .path("/")
                 .http_only(true)
+                .expires(OffsetDateTime::now_utc() + days)
                 .finish();
 
             cookies.add(session_cookie);
