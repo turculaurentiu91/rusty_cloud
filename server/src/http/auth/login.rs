@@ -1,14 +1,17 @@
 use axum::{http::StatusCode, response::Json, Extension};
-use interfaces::auth::{LoginRequest, LoginResponse};
+use interfaces::{
+    auth::{LoginOkResponse, LoginRequest, LoginResponse},
+    error_response::ErrorResponse,
+};
 use sqlx::PgPool;
 
-use crate::{helpers::user::User, http::error::Error};
+use crate::helpers::user::User;
 
 pub async fn handle(
     Extension(db): Extension<PgPool>,
     body: Json<LoginRequest>,
-) -> Result<Json<LoginResponse>, Error<String>> {
-    sqlx::query!(
+) -> (StatusCode, Json<LoginResponse>) {
+    let user = sqlx::query!(
         r#"
             SELECT 
                 *
@@ -25,15 +28,31 @@ pub async fn handle(
         return match result {
             Some(result) => {
                 let user = User::new(result.id, &result.name, &result.email);
-                Ok(Json(LoginResponse {
-                    token: user.to_token(),
-                }))
+                (
+                    StatusCode::OK,
+                    Json(LoginResponse::Success(LoginOkResponse {
+                        token: user.to_token(),
+                    })),
+                )
             }
-            None => Err(Error::new(
-                String::from("Unauthorized"),
+            None => (
                 StatusCode::UNAUTHORIZED,
-            )),
+                Json(LoginResponse::Error(ErrorResponse {
+                    error: "Invalid email or password".to_string(),
+                    extra: None,
+                })),
+            ),
         };
-    })
-    .map_err(sqlx::Error::into)?
+    });
+
+    match user {
+        Ok(user) => user,
+        Err(e) => (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(LoginResponse::Error(ErrorResponse {
+                error: e.to_string(),
+                extra: None,
+            })),
+        ),
+    }
 }

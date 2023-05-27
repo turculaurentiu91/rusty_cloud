@@ -68,9 +68,9 @@ checksum = "9c7d0618f0e0b7e8ff11427422b64564d5fb0be1940354bfe2e0529b18a9d9b8"
 
 [[package]]
 name = "async-compression"
-version = "0.3.15"
+version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "942c7cd7ae39e91bde4820d74132e9862e62c2f386c3aa90ccf55949f5bad63a"
+checksum = "5b0122885821398cc923ece939e24d1056a2384ee719432397fa9db87230ff11"
 dependencies = [
  "flate2",
  "futures-core",
@@ -225,8 +225,11 @@ dependencies = [
 name = "browser"
 version = "0.1.0"
 dependencies = [
+ "interfaces",
+ "lazy_static",
  "leptos",
- "reqwest-wasm",
+ "reqwest",
+ "serde",
 ]
 
 [[package]]
@@ -1840,45 +1843,10 @@ version = "0.11.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cde824a14b7c14f85caff81225f411faacc04a2013f41670f41443742b1c1c55"
 dependencies = [
+ "async-compression",
  "base64 0.21.0",
  "bytes",
  "encoding_rs",
- "futures-core",
- "futures-util",
- "h2",
- "http",
- "http-body",
- "hyper",
- "ipnet",
- "js-sys",
- "log",
- "mime",
- "once_cell",
- "percent-encoding",
- "pin-project-lite",
- "serde",
- "serde_json",
- "serde_urlencoded",
- "tokio",
- "tower-service",
- "url",
- "wasm-bindgen",
- "wasm-bindgen-futures",
- "web-sys",
- "winreg",
-]
-
-[[package]]
-name = "reqwest-wasm"
-version = "0.11.16"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "59fdca8934fccbd5aec3e208bdb5a76107ce8690aa51c6c292c31f21541b52b9"
-dependencies = [
- "async-compression",
- "base64 0.13.1",
- "bytes",
- "encoding_rs",
- "futures",
  "futures-core",
  "futures-util",
  "h2",

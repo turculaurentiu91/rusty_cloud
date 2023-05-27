@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+use crate::error_response::ErrorResponse;
+
 #[derive(Serialize, Deserialize)]
 pub struct LoginRequest {
     pub email: String,
@@ -7,8 +9,14 @@ pub struct LoginRequest {
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct LoginResponse {
+pub struct LoginOkResponse {
     pub token: String,
+}
+
+#[derive(Serialize, Deserialize)]
+pub enum LoginResponse {
+    Success(LoginOkResponse),
+    Error(ErrorResponse<String>),
 }
 
 #[derive(Serialize, Deserialize)]
