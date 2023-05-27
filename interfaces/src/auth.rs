@@ -32,3 +32,9 @@ pub struct RegisterRequest {
     pub name: String,
     pub password: String,
 }
+
+#[derive(Serialize, Deserialize)]
+pub enum RegisterResponse {
+    Success(User),
+    Error(ErrorResponse<String>),
+}

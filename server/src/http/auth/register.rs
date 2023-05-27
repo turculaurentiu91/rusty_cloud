@@ -1,45 +1,78 @@
 use axum::{http::StatusCode, Extension, Json};
-use interfaces::auth::RegisterRequest;
+use interfaces::{
+    auth::{RegisterRequest, RegisterResponse, User},
+    error_response::ErrorResponse,
+};
 use sqlx::PgPool;
-
-use crate::http::error::Error;
 
 pub async fn handle(
     Extension(db): Extension<PgPool>,
     body: Json<RegisterRequest>,
-) -> Result<StatusCode, Error<String>> {
+) -> (StatusCode, Json<RegisterResponse>) {
     let existing_user = sqlx::query!(r#"SELECT id FROM users WHERE email = $1"#, body.email)
         .fetch_optional(&db)
-        .await
-        .map_err(sqlx::Error::into)?;
+        .await;
 
-    if let Some(_) = existing_user {
-        return Err(Error::new(
-            format!(
-                "User with email {} already exists in our database",
-                body.email
-            ),
-            StatusCode::BAD_REQUEST,
-        ));
-    }
-
-    sqlx::query!(
-        r#"
-            INSERT INTO
-                users(name, email, password)
-            VALUES (
-                $1,
-                $2,
-                crypt($3, gen_salt('bf', 8))
+    match existing_user {
+        Err(e) => {
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(RegisterResponse::Error(ErrorResponse {
+                    error: e.to_string(),
+                    extra: None,
+                })),
             );
-        "#,
-        body.name,
-        body.email,
-        body.password
-    )
-    .execute(&db)
-    .await
-    .map_err(sqlx::Error::into)?;
+        }
+        Ok(Some(_)) => {
+            return (
+                StatusCode::BAD_REQUEST,
+                Json(RegisterResponse::Error(ErrorResponse {
+                    error: format!(
+                        "User with email {} already exists in our database",
+                        body.email
+                    ),
+                    extra: None,
+                })),
+            );
+        }
+        Ok(None) => {
+            let result = sqlx::query!(
+                r#"
+                    INSERT INTO
+                        users(name, email, password)
+                    VALUES (
+                        $1,
+                        $2,
+                        crypt($3, gen_salt('bf', 8))
+                    )
+                    RETURNING id, name, email;
+                "#,
+                body.name,
+                body.email,
+                body.password
+            )
+            .fetch_one(&db)
+            .await;
 
-    Ok(StatusCode::NO_CONTENT)
+            match result {
+                Err(e) => {
+                    return (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        Json(RegisterResponse::Error(ErrorResponse {
+                            error: e.to_string(),
+                            extra: None,
+                        })),
+                    );
+                }
+                Ok(db_user) => (
+                    StatusCode::OK,
+                    Json(RegisterResponse::Success(User {
+                        id: db_user.id,
+                        name: db_user.name,
+                        email: db_user.email,
+                    })),
+                ),
+            }
+        }
+    }
 }
