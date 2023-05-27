@@ -16,7 +16,7 @@ pub async fn handle(
     match db::auth::User::login(&body.email, &body.password, &db).await {
         Ok(user) => {
             let token = User::new(user.id, &user.name, &user.email).to_token();
-            let session_cookie = Cookie::build("session", token.clone())
+            let session_cookie = Cookie::build("session", token)
                 .path("/")
                 .http_only(true)
                 .finish();
@@ -25,7 +25,6 @@ pub async fn handle(
             (
                 StatusCode::OK,
                 Json(LoginResponse::Success(LoginOkResponse {
-                    token,
                     user: interfaces::auth::User {
                         id: user.id,
                         email: user.email,

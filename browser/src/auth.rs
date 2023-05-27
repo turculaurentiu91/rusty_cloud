@@ -16,7 +16,7 @@ pub async fn login(email: String, password: String) -> Result<String, String> {
         .map_err(|e| e.to_string())?;
 
     match response {
-        LoginResponse::Success(response) => Ok(response.token),
+        LoginResponse::Success(response) => Ok(response.user.email),
         LoginResponse::Error(error) => Err(error.error),
     }
 }
