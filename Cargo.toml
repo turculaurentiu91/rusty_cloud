@@ -3,5 +3,5 @@
 members = [
     "server",
     "interfaces",
-    "http-client"
+    "browser"
 ]

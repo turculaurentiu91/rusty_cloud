@@ -24,10 +24,4 @@ RUN curl -fsSL -o /usr/local/bin/dbmate https://github.com/amacneil/dbmate/relea
 RUN curl -sL https://deb.nodesource.com/setup_18.x | bash - \
    && apt-get install -y nodejs
 
-# Install pnpm
-RUN curl -fsSL https://get.pnpm.io/install.sh | sh -
-
-# Install wasm-pack
-RUN curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
-
 RUN mkdir /storage && chown -R vscode:vscode /storage
