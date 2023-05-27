@@ -7,7 +7,9 @@
   "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
 
   // Features to add to the dev container. More info: https://containers.dev/features.
-  // "features": {},
+  "features": {
+    "ghcr.io/lee-orr/rusty-dev-containers/wasm32-unknown-unknown:0": "0.0.3"
+  },
 
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
   // "forwardPorts": [5432],
@@ -20,8 +22,28 @@
     "vscode": {
       "extensions": [
         "ms-azuretools.vscode-docker",
-        "GitHub.copilot"
-      ]
+        "GitHub.copilot",
+        "bradlc.vscode-tailwindcss"
+      ],
+      "settings": {
+         "emmet.includeLanguages": {
+          "rust": "html",
+          "*.rs": "html"
+        },
+        "tailwindCSS.includeLanguages": {
+            "rust": "html",
+            "*.rs": "html"
+        },
+        "files.associations": {
+            "*.rs": "rust"
+        },
+        "editor.quickSuggestions": {
+          "other": "on", 
+          "comments": "on",
+          "strings": true
+        },
+        "css.validate": false
+      }
     }
   }
 
