@@ -19,7 +19,7 @@ pub enum LoginResponse {
     Error(ErrorResponse<String>),
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct User {
     pub id: i32,
     pub email: String,

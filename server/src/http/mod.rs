@@ -1,10 +1,13 @@
 use axum::{
     routing::{get, get_service},
-    Extension, Router,
+    Extension, Json, Router,
 };
+use interfaces::auth::User as ResponseUser;
 use sqlx::PgPool;
 use tower_cookies::CookieManagerLayer;
 use tower_http::services::ServeDir;
+
+use crate::helpers::user::User;
 
 mod auth;
 pub mod error;
@@ -13,7 +16,7 @@ mod folders;
 
 pub fn app(db: PgPool) -> Router {
     let api = Router::new()
-        .route("/", get(me_handler))
+        .route("/me", get(me_handler))
         .merge(auth::router())
         .merge(files::router())
         .merge(folders::router())
@@ -28,8 +31,12 @@ pub fn app(db: PgPool) -> Router {
         .layer(CookieManagerLayer::new())
 }
 
-pub async fn me_handler() -> String {
-    String::from("Hello")
+pub async fn me_handler(user: User) -> Json<ResponseUser> {
+    Json(ResponseUser {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+    })
 }
 
 pub async fn serve(db: PgPool) {

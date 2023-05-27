@@ -1,4 +1,4 @@
-use interfaces::auth::{LoginRequest, LoginResponse};
+use interfaces::auth::{LoginRequest, LoginResponse, User};
 
 pub async fn login(email: String, password: String) -> Result<String, String> {
     let request = LoginRequest { email, password };
@@ -19,4 +19,19 @@ pub async fn login(email: String, password: String) -> Result<String, String> {
         LoginResponse::Success(response) => Ok(response.user.email),
         LoginResponse::Error(error) => Err(error.error),
     }
+}
+
+pub async fn me() -> Option<User> {
+    let client = reqwest::Client::new();
+
+    let response = client
+        .get("http://localhost:3000/api/me")
+        .send()
+        .await
+        .ok()?
+        .json::<User>()
+        .await
+        .ok()?;
+
+    Some(response)
 }
