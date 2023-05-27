@@ -27,4 +27,8 @@ RUN curl -sL https://deb.nodesource.com/setup_18.x | bash - \
 RUN cd /usr/local/bin \ 
    && wget -qO- https://github.com/thedodd/trunk/releases/download/v0.16.0/trunk-x86_64-unknown-linux-gnu.tar.gz | tar -xzf-
 
+RUN curl -sSL https://github.com/watchexec/cargo-watch/releases/download/v8.4.0/cargo-watch-v8.4.0-x86_64-unknown-linux-gnu.deb -o /tmp/cargo-watch.deb \
+   && dpkg -i /tmp/cargo-watch.deb \
+   && rm /tmp/cargo-watch.deb
+
 RUN mkdir /storage && chown -R vscode:vscode /storage
