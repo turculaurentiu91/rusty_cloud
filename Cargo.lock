@@ -443,6 +443,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "db"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "sqlx",
+]
+
+[[package]]
 name = "derive-where"
 version = "1.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2103,6 +2111,7 @@ version = "0.1.0"
 dependencies = [
  "axum",
  "chrono",
+ "db",
  "hmac",
  "interfaces",
  "jwt",

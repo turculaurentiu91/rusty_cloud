@@ -11,48 +11,33 @@ pub async fn handle(
     Extension(db): Extension<PgPool>,
     body: Json<LoginRequest>,
 ) -> (StatusCode, Json<LoginResponse>) {
-    let user = sqlx::query!(
-        r#"
-            SELECT 
-                *
-            FROM users
-            WHERE email = $1
-            AND password = crypt($2, password)
-        "#,
-        body.email,
-        body.password,
-    )
-    .fetch_optional(&db)
-    .await
-    .map(|result| {
-        return match result {
-            Some(result) => {
-                let user = User::new(result.id, &result.name, &result.email);
-                (
-                    StatusCode::OK,
-                    Json(LoginResponse::Success(LoginOkResponse {
-                        token: user.to_token(),
-                    })),
-                )
-            }
-            None => (
+    match db::auth::User::login(&body.email, &body.password, &db).await {
+        Ok(user) => {
+            let token = User::new(user.id, &user.name, &user.email).to_token();
+
+            (
+                StatusCode::OK,
+                Json(LoginResponse::Success(LoginOkResponse { token })),
+            )
+        }
+        Err(e) => match e {
+            db::auth::LoginErrors::UserNotFound => (
                 StatusCode::UNAUTHORIZED,
                 Json(LoginResponse::Error(ErrorResponse {
-                    error: "Invalid email or password".to_string(),
+                    error: "User not found".to_string(),
                     extra: None,
                 })),
             ),
-        };
-    });
-
-    match user {
-        Ok(user) => user,
-        Err(e) => (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            Json(LoginResponse::Error(ErrorResponse {
-                error: e.to_string(),
-                extra: None,
-            })),
-        ),
+            db::auth::LoginErrors::DatabaseError(e) => {
+                eprintln!("Error logging in: {}", e);
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    Json(LoginResponse::Error(ErrorResponse {
+                        error: "Internal server error".to_string(),
+                        extra: None,
+                    })),
+                )
+            }
+        },
     }
 }
