@@ -8,7 +8,8 @@
 
   // Features to add to the dev container. More info: https://containers.dev/features.
   "features": {
-    "ghcr.io/lee-orr/rusty-dev-containers/wasm32-unknown-unknown:0": "0.0.3"
+	"ghcr.io/r3dpoint/devcontainer-features/tailwindcss-standalone-cli:1": {}
+	//"devwasm.azurecr.io/dev-wasm/dev-wasm-feature/rust-wasi:0": {}
   },
 
   // Use 'forwardPorts' to make a list of ports inside the container available locally.

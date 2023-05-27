@@ -17,3 +17,4 @@ sqlx = { version = "0.6.3", features = ["runtime-tokio-rustls", "postgres", "chr
 tokio = { version = "1.28.1", features = ["full"] }
 tokio-util = { version = "0.7.8", features = ["io"] }
 validator = { version = "0.16.0", features = ["derive"] }
+tower-http = { version = "0.4.0", features = ["fs", "trace"] }

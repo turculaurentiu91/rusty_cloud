@@ -3,7 +3,7 @@ FROM mcr.microsoft.com/devcontainers/rust:0-1-bullseye
 # Include lld linker to improve build times either by using environment variable
 # RUSTFLAGS="-C link-arg=-fuse-ld=lld" or with Cargo's configuration file (i.e see .cargo/config.toml).
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-   && apt-get -y install clang lld curl 
+   && apt-get -y install clang lld curl wget
 
 
 # Install postgresql-client-14
@@ -23,5 +23,8 @@ RUN curl -fsSL -o /usr/local/bin/dbmate https://github.com/amacneil/dbmate/relea
 # Install Node.js v18
 RUN curl -sL https://deb.nodesource.com/setup_18.x | bash - \
    && apt-get install -y nodejs
+
+RUN cd /usr/local/bin \ 
+   && wget -qO- https://github.com/thedodd/trunk/releases/download/v0.16.0/trunk-x86_64-unknown-linux-gnu.tar.gz | tar -xzf-
 
 RUN mkdir /storage && chown -R vscode:vscode /storage
